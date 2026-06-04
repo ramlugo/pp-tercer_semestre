@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Política de Seguridad de Contenidos (CSP) para prevenir ataques XSS -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;">
     <title>Agromaguey Pro | Plataforma de Gestión e Inversión</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Fijar versión de CDN de Chart.js para estabilidad -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -24,21 +27,89 @@
             </header>
 
             <section class="apple-grid">
-                <div class="glass-card-light wide">
-                    <h2>Crisis de Asimetría de Información</h2>
-                    <p>La ausencia de registros sistematizados genera una vulnerabilidad del 32.50% en el patrimonio del productor frente a las heladas y sequías.</p>
+                
+                <!-- Tarjeta 1: Contexto (Layout de 2 columnas) -->
+                <div class="glass-card-light wide card-layout-split card-padding-large">
+                    <div class="card-content-half">
+                        <span class="badge badge-blue">🌍 Macroentorno</span>
+                        <h2 class="card-title">Contexto Macroeconómico y Agroindustrial</h2>
+                        <p class="card-text">La agroindustria del maguey-mezcal en Oaxaca representa un mercado de alta complejidad financiera impulsado por una demanda global exponencial. Con una producción nacional superior a los 12 millones de litros anuales, Oaxaca concentra una hegemonía del 90% del mercado (SADER, 2023).</p>
+                        
+                        <h3 class="card-subtitle-red">⚠️ Crisis de Asimetría e Inmovilización</h3>
+                        <p class="card-text-small">El prolongado ciclo biológico del Agave Espadín exige una planeación rigurosa que genera una severa <strong>inmovilización de capital</strong>. Sumado a la ausencia de registros, esto provoca una vulnerabilidad del 32.50% en el patrimonio frente a riesgos climáticos.</p>
+                    </div>
+                    <div class="card-image-half">
+                        <img src="escenario-nacional.jpg" alt="Escenario Nacional del Mezcal" width="600" height="400" class="card-img card-img-shadow" loading="lazy">
+                        <p class="img-caption"><em>Imagen 1. Autoría</em></p>
+                    </div>
+                </div>  
+
+                <!-- NUEVA TARJETA: Problemática -->
+                <div class="glass-card-light card-layout-col">
+                    <div>
+                        <span class="badge badge-red">🚨 Problemática</span>
+                        <h3 class="card-title-sm">Parálisis Estratégica Sistémica</h3>
+                        <p class="card-text-sm">En Santa María Albarradas, la crisis de rentabilidad es un fenómeno convergente:</p>
+                        <ul class="card-list-sm">
+                            <li><strong>Técnica:</strong> "Ceguera de datos" ante riesgo climático (32.5% prob. de falla).</li>
+                            <li><strong>Financiera:</strong> Inmovilización de capital por el ciclo de 6-8 años, anulando la liquidez trimestral.</li>
+                            <li><strong>Estructural:</strong> Altas barreras de formalización (SAT, CRM) que excluyen al pequeño productor.</li>
+                        </ul>
+                        <p class="card-text-highlight-red"><strong>Impacto:</strong> Pérdidas recurrentes, degradación del suelo y migración forzada.</p>
+                    </div>
+                    <div class="card-image-bottom">
+                        <img src="problema-sistemico.jpg" alt="Problema Sistémico" width="600" height="400" class="card-img" loading="lazy">
+                        <p class="img-caption"><em>Imagen 2. sin derechos de autor </em></p>
+                    </div>
                 </div>
-                <div class="glass-card-light">
-                    <h3>Trampa de Capital</h3>
-                    <p>Inmovilización de inversión por 8-10 años. Sin datos, el agricultor vende a precios de liquidación.</p>
+                
+                <!-- Tarjeta: Estrategia -->
+                <div class="glass-card-light card-layout-col">
+                    <div>
+                        <span class="badge badge-green">🌱 Solución</span>
+                        <h3 class="card-title-sm">Estrategia de Diversificación</h3>
+                        <p class="card-text">Resulta mandatorio estructurar herramientas analíticas que evalúen la transición del modelo tradicional hacia esquemas productivos diversificados, con el objetivo de minimizar la inmovilización de capital a largo plazo y maximizar la resiliencia.</p>
+                    </div>
+                    <div class="card-image-bottom">
+                        <img src="estrategia-diversificacion.jpg" alt="Estrategia de Diversificación" width="600" height="400" class="card-img" loading="lazy">
+                        <p class="img-caption"><em>Imagen 3. Autoria </em></p>
+                    </div>
                 </div>
-                <div class="glass-card-light">
-                    <h3>Barreras de Entrada</h3>
-                    <p>Certificaciones de $13,000 MXN y requisitos del SAT crean una brecha insalvable.</p>
+                
+                <!-- Tarjeta: Objetivo -->
+                <div class="glass-card-light card-layout-col">
+                    <div>
+                        <span class="badge badge-yellow">🎯 Meta</span>
+                        <h3 class="card-title-sm">Nuestro Objetivo</h3>
+                        <p class="card-text">Evaluar la viabilidad financiera de diversificar el sistema productivo de maguey-mezcal hacia cultivos de ciclo corto (jitomate y chile) mediante una herramienta analítica, mitigando la inmovilización de capital de pequeños productores.</p>
+                    </div>
+                    <div class="card-image-bottom">
+                        <img src="meta-objetivo.jpg" alt="Herramienta Analítica" width="600" height="400" class="card-img" loading="lazy">
+                        <p class="img-caption"><em>Imagen 4. Autoría </em></p>
+                    </div>
                 </div>
-                <div class="glass-card-light">
-                    <h3>Impacto Social</h3>
-                    <p>El 90% de la utilidad se queda en intermediarios debido a la falta de herramientas de gestión propias.</p>
+
+                <!-- Tarjeta 4: Impacto -->
+                <div class="glass-card-light wide card-padding-large">
+                    <span class="badge badge-purple">🚀 Ejecución</span>
+                    <h3 class="card-title-lg">Impacto y Objetivos Estratégicos</h3>
+                    
+                    <div class="impact-grid">
+                        <div class="impact-box impact-blue">
+                            <strong>📊 Sistematización de Datos</strong>
+                            <span>Diseño de arquitectura relacional para estructurar costos operativos de cultivos alternativos frente al monocultivo del agave.</span>
+                        </div>
+                        
+                        <div class="impact-box impact-green">
+                            <strong>💵 Liquidez Dinámica</strong>
+                            <span>Aplicación de contabilidad financiera para proyectar la generación de flujo de efectivo trimestral con cultivos de ciclo corto.</span>
+                        </div>
+
+                        <div class="impact-box impact-yellow">
+                            <strong>🛡️ Mitigación de Riesgo</strong>
+                            <span>Implementación de modelos probabilísticos para evaluar volatilidad climática y fluctuaciones de mercado.</span>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>

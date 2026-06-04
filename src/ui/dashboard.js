@@ -368,13 +368,13 @@ export function generarEstadoResultados(aniosFaltantes, proyectoActual) {
     if (proyectoActual.modelo === "solo-cultivo") {
         ingresos = pesoEstimadoCosecha * metricas.precioKgCrudo;
         costosMantenimiento = plantas * COSTOS_FIJOS.costoMantenimientoPlanta * aniosFaltantes;
-        if (proyectoActual.cultivosIntercalados) costosMantenimiento *= 0.30;
+        if (proyectoActual.cultivosIntercalados) costosMantenimiento *= 0.70;
     } else {
         const botellas = Math.floor(pesoEstimadoCosecha / 10);
         ingresos = botellas * COSTOS_FIJOS.ventaPromedioMezcal;
         
         costosMantenimiento = plantas * COSTOS_FIJOS.costoMantenimientoPlanta * aniosFaltantes;
-        if (proyectoActual.cultivosIntercalados) costosMantenimiento *= 0.30;
+        if (proyectoActual.cultivosIntercalados) costosMantenimiento *= 0.70;
         
         const factorPalenque = botellas > 0 ? Math.ceil(botellas / 50) : 0; 
         costosProcesamiento = factorPalenque * (COSTOS_FIJOS.lenaPorLote + (COSTOS_FIJOS.jornal * COSTOS_FIJOS.empleados));

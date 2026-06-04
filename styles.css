@@ -140,3 +140,49 @@ input:checked + .slider:before { transform: translateX(22px); }
     color: white !important;
     border-color: var(--primary) !important;
 }
+
+/* =========================================
+   NUEVAS CLASES (Refactorización)
+   ========================================= */
+
+/* Componentes de Tarjetas */
+.card-layout-split { display: flex; flex-wrap: wrap; gap: 30px; align-items: center; }
+.card-padding-large { padding: 30px; }
+.card-content-half { flex: 1; min-width: 300px; }
+.card-image-half { flex: 1; min-width: 300px; display: flex; flex-direction: column; align-items: center; }
+.card-layout-col { display: flex; flex-direction: column; justify-content: space-between; }
+
+/* Tipografía en Tarjetas */
+.card-title { margin-top: 15px; margin-bottom: 15px; }
+.card-subtitle-red { margin-top: 20px; font-size: 1.1rem; color: #f87171; }
+.card-title-sm { margin-top: 15px; }
+.card-title-lg { margin-top: 15px; margin-bottom: 20px; font-size: 1.5rem; }
+.card-text { color: var(--text-dim); line-height: 1.6; }
+.card-text-sm { color: var(--text-dim); line-height: 1.5; font-size: 0.85rem; margin-bottom: 10px; }
+.card-list-sm { color: var(--text-dim); font-size: 0.8rem; line-height: 1.5; padding-left: 20px; margin-bottom: 10px; }
+.card-text-highlight-red { color: #fca5a5; line-height: 1.4; font-size: 0.8rem; margin-bottom: 0; }
+
+/* Badges / Píldoras Temáticas */
+.badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+.badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.badge-red { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.badge-yellow { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.badge-purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+
+/* Imágenes en Tarjetas */
+.card-img { width: 100%; height: 220px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+.card-img-shadow { box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.img-caption { font-size: 0.75rem; color: #64748b; margin-top: 12px; }
+.card-image-bottom { margin-top: 15px; text-align: center; }
+.card-image-bottom .card-img { border-radius: 10px; }
+.card-image-bottom .img-caption { margin-top: 8px; }
+
+/* Impact Grid */
+.impact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.impact-box { background: rgba(255,255,255,0.02); padding: 20px; border-radius: 10px; border-left: 4px solid; }
+.impact-box strong { color: #1a1a1a; display: block; margin-bottom: 8px; }
+.impact-box span { color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; }
+.impact-blue { border-left-color: #3b82f6; }
+.impact-green { border-left-color: #10b981; }
+.impact-yellow { border-left-color: #f59e0b; }

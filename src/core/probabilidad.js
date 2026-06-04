@@ -12,7 +12,7 @@
  * escenarios de helada (temperaturas negativas) frente a escenarios
  * seguros, fundamentando la provisión de riesgo financiero aplicada
  * en el módulo de finanzas.
- */
+*/
 
 /**
  * Calcula el valor de la función de densidad de probabilidad (PDF)
