@@ -28,8 +28,9 @@ export const COSTOS_FIJOS = {
     jornal: 300,
     empleados: 5,
     lenaPorLote: 1500,
-    ventaPromedioMezcal: 450,
-    costoMantenimientoPlanta: 15
+    ventaPromedioMezcal: 500,
+    mantenimientoAnual: 12000,
+    salariosAnuales: 360000
 };
 
 /**
@@ -46,8 +47,8 @@ export const COSTOS_FIJOS = {
  * @property {number} silvestre.kgPorPlanta   - Rendimiento promedio en kg de piña por planta madura.
  */
 export const DATOS_AGAVE = {
-    espadin: { precioKgCrudo: 10, kgPorPlanta: 50 },
-    silvestre: { precioKgCrudo: 25, kgPorPlanta: 15 }
+    espadin: { precioKgCrudo: 3, kgPorPlanta: 250 },
+    silvestre: { precioKgCrudo: 3, kgPorPlanta: 250 }
 };
 
 /**
@@ -86,8 +87,10 @@ export const PARAMETROS_MERCADO = {
     },
     costosMezcal: {
         agavePorLitro: 125,
-        envasado: 60,
-        maquila: 425,
+        eficienciaConversion: 10.67,
+        envasadoPorBotella: 45,
+        maquilaPorLitro: 425,
+        gastosAdministrativosAnuales: 107000,
         operacionPalenque: 77.45
     },
     produccion: {
@@ -116,7 +119,18 @@ export const PARAMETROS_MERCADO = {
  *                                      a las condiciones climáticas y la exposición a plagas.
  */
 export const FINANZAS_EXTERNAS = {
-    capex: 65257,
+    capex: 56814.20,
     opexAnual: 201000,
     provisionRiesgo: 0.12
+};
+
+export const BIOMASA = {
+    tasaMortalidad: 0.05,
+    tasaMermaClimatica: 0.069,
+    pesoOptimo: 250
+};
+
+export const MERCADO_HIJUELOS = {
+    cantidadGeneradaPorPlanta: 3,
+    precioUnitario: 10
 };

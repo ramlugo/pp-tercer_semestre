@@ -11,7 +11,7 @@
  * y retornan resultados que son consumidos por la capa de interfaz de usuario.
  */
 
-import { COSTOS_FIJOS, DATOS_AGAVE, FINANZAS_EXTERNAS } from '../config/constantes.js';
+import { COSTOS_FIJOS, DATOS_AGAVE, FINANZAS_EXTERNAS, BIOMASA, MERCADO_HIJUELOS, PARAMETROS_MERCADO } from '../config/constantes.js';
 
 /**
  * Genera la proyección anualizada de producción agrícola, costos directos e ingresos.
@@ -64,30 +64,42 @@ export function generarProyeccionesAgricolas(proyecto) {
     for (let i = 1; i <= proyecto.aniosProyecto; i++) {
         let ingresosAnio = 0;
         let costosAnio = 0;
-        let mermasAnio = Math.floor(inventarioVivo * 0.05); 
-        
-        inventarioVivo -= mermasAnio;
-
-        costosAnio += COSTOS_FIJOS.costoMantenimientoPlanta * inventarioVivo;
-        if (proyecto.cultivosIntercalados) {
-            costosAnio *= 0.70; 
+        if (proyecto.modelo === 'solo-cultivo') {
+            costosAnio += (COSTOS_FIJOS.mantenimientoAnual + COSTOS_FIJOS.salariosAnuales) * (inventarioVivo / 1000);
+            if (proyecto.cultivosIntercalados) {
+                costosAnio *= 0.70; 
+            }
+        } else {
+            costosAnio += PARAMETROS_MERCADO.costosMezcal.gastosAdministrativosAnuales * (inventarioVivo / 1000);
         }
 
         let loteCosechado = proyecto.inventario.find(l => l.aniosFaltantes === i);
         let kgCosechadosAnio = 0;
 
         if (loteCosechado) {
-            kgCosechadosAnio = loteCosechado.plantas * datosVariedad.kgPorPlanta;
+            let plantas = loteCosechado.plantas;
+            let mueren = plantas * BIOMASA.tasaMortalidad;
+            let merman = plantas * BIOMASA.tasaMermaClimatica;
+            let optimas = plantas * (1 - BIOMASA.tasaMortalidad - BIOMASA.tasaMermaClimatica);
+            
+            kgCosechadosAnio = (merman * 50) + (optimas * BIOMASA.pesoOptimo);
             kgTotales += kgCosechadosAnio;
             
-            let litrosProducidos = kgCosechadosAnio / 10; 
-            litrosTotales += litrosProducidos;
-            
             if (proyecto.modelo === 'solo-cultivo') {
-                ingresosAnio = kgCosechadosAnio * datosVariedad.precioKgCrudo;
+                ingresosAnio = kgCosechadosAnio * DATOS_AGAVE[proyecto.variedad].precioKgCrudo;
+                ingresosAnio += plantas * MERCADO_HIJUELOS.cantidadGeneradaPorPlanta * MERCADO_HIJUELOS.precioUnitario;
             } else {
-                ingresosAnio = litrosProducidos * COSTOS_FIJOS.ventaPromedioMezcal;
-                costosAnio += COSTOS_FIJOS.lenaPorLote + (COSTOS_FIJOS.jornal * COSTOS_FIJOS.empleados);
+                let litrosProducidos = kgCosechadosAnio / PARAMETROS_MERCADO.costosMezcal.eficienciaConversion;
+                litrosTotales += litrosProducidos;
+                
+                let botellas = litrosProducidos * 1.3333333333333333;
+                ingresosAnio = botellas * COSTOS_FIJOS.ventaPromedioMezcal;
+                
+                let compraMateriaPrima = kgCosechadosAnio * DATOS_AGAVE[proyecto.variedad].precioKgCrudo;
+                let costoMaquila = litrosProducidos * PARAMETROS_MERCADO.costosMezcal.maquilaPorLitro;
+                let costoEnvasado = botellas * PARAMETROS_MERCADO.costosMezcal.envasadoPorBotella;
+                
+                costosAnio += compraMateriaPrima + costoMaquila + costoEnvasado;
             }
             
             inventarioVivo -= loteCosechado.plantas; 

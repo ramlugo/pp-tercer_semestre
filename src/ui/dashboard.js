@@ -13,7 +13,7 @@
  * delegando los cálculos financieros y estadísticos al Core Matemático.
  */
 
-import { COSTOS_FIJOS, DATOS_AGAVE, FINANZAS_EXTERNAS } from '../config/constantes.js';
+import { COSTOS_FIJOS, DATOS_AGAVE, FINANZAS_EXTERNAS, BIOMASA, MERCADO_HIJUELOS, PARAMETROS_MERCADO } from '../config/constantes.js';
 import { generarProyeccionesAgricolas, calcularFlujoNetoGlobal } from '../core/finanzas.js';
 import { calcularEquilibrioYExcedentes } from '../core/mercado.js';
 import { renderGraficaEvolutiva, actualizarGraficaExcedentes, renderizarGraficaRiesgo } from './charts.js';
@@ -205,7 +205,12 @@ export function crearProyecto(proyectoActual, inicializarMicroeconomia) {
     // Simulación de flujo de efectivo a 3 años para validación de liquidez inicial
     let alertaLiquidez = false;
     let liquidezProyectada = proyectoActual.presupuesto;
-    let costoMantenimientoAnual = plantasTotales * COSTOS_FIJOS.costoMantenimientoPlanta;
+    let costoMantenimientoAnual = 0;
+    if (proyectoActual.modelo === 'solo-cultivo') {
+        costoMantenimientoAnual = (COSTOS_FIJOS.mantenimientoAnual + COSTOS_FIJOS.salariosAnuales) * (plantasTotales / 1000);
+    } else {
+        costoMantenimientoAnual = PARAMETROS_MERCADO.costosMezcal.gastosAdministrativosAnuales * (plantasTotales / 1000);
+    }
 
     for (let año = 1; año <= 3; año++) {
         liquidezProyectada -= costoMantenimientoAnual;
@@ -360,40 +365,111 @@ export function generarEstadoResultados(aniosFaltantes, proyectoActual) {
     if (!lote) return;
 
     const plantas = lote.plantas;
+    const factorEscala = plantas / 1000;
     
-    const pesoEstimadoCosecha = plantas * metricas.kgPorPlanta;
+    let mueren = plantas * BIOMASA.tasaMortalidad;
+    let merman = plantas * BIOMASA.tasaMermaClimatica;
+    let optimas = plantas * (1 - BIOMASA.tasaMortalidad - BIOMASA.tasaMermaClimatica);
     
-    let ingresos = 0, costosMantenimiento = 0, costosProcesamiento = 0;
+    const pesoEstimadoCosecha = (merman * 50) + (optimas * BIOMASA.pesoOptimo);
+    
+    let htmlContent = "";
+    let utilidadNetaLote = 0;
 
     if (proyectoActual.modelo === "solo-cultivo") {
-        ingresos = pesoEstimadoCosecha * metricas.precioKgCrudo;
-        costosMantenimiento = plantas * COSTOS_FIJOS.costoMantenimientoPlanta * aniosFaltantes;
-        if (proyectoActual.cultivosIntercalados) costosMantenimiento *= 0.70;
-    } else {
-        const botellas = Math.floor(pesoEstimadoCosecha / 10);
-        ingresos = botellas * COSTOS_FIJOS.ventaPromedioMezcal;
+        let ingresosAgave = pesoEstimadoCosecha * DATOS_AGAVE[proyectoActual.variedad].precioKgCrudo;
+        let ingresosHijuelos = plantas * MERCADO_HIJUELOS.cantidadGeneradaPorPlanta * MERCADO_HIJUELOS.precioUnitario;
+        let totalIngresos = ingresosAgave + ingresosHijuelos;
         
-        costosMantenimiento = plantas * COSTOS_FIJOS.costoMantenimientoPlanta * aniosFaltantes;
-        if (proyectoActual.cultivosIntercalados) costosMantenimiento *= 0.70;
+        let costoInstalacion = 0;
+        if (aniosFaltantes === proyectoActual.inventario[0].aniosFaltantes) {
+            costoInstalacion = FINANZAS_EXTERNAS.capex * factorEscala;
+        }
         
-        const factorPalenque = botellas > 0 ? Math.ceil(botellas / 50) : 0; 
-        costosProcesamiento = factorPalenque * (COSTOS_FIJOS.lenaPorLote + (COSTOS_FIJOS.jornal * COSTOS_FIJOS.empleados));
-    }
+        let costoMantenimiento = (COSTOS_FIJOS.mantenimientoAnual + COSTOS_FIJOS.salariosAnuales) * factorEscala * aniosFaltantes;
+        if (proyectoActual.cultivosIntercalados) costoMantenimiento *= 0.70;
+        
+        let totalEgresos = costoInstalacion + costoMantenimiento;
+        utilidadNetaLote = totalIngresos - totalEgresos;
 
-    const utilidadNetaLote = ingresos - (costosMantenimiento + costosProcesamiento);
+        htmlContent = `
+            <table style="width: 100%; border-collapse: collapse;">
+                <tbody>
+                    <tr style="border-bottom: 1px solid #2d3748;">
+                        <td style="padding: 12px 0; font-weight: bold; font-size: 0.95rem;">(+) INGRESOS POR AGAVE CRUDO</td>
+                        <td style="text-align: right; color: var(--primary); font-weight: bold;">$${ingresosAgave.toLocaleString('es-MX', {maximumFractionDigits: 0})}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2d3748;">
+                        <td style="padding: 12px 0; font-weight: bold; font-size: 0.95rem;">(+) INGRESOS POR HIJUELOS</td>
+                        <td style="text-align: right; color: var(--primary); font-weight: bold;">$${ingresosHijuelos.toLocaleString('es-MX', {maximumFractionDigits: 0})}</td>
+                    </tr>
+                    ${costoInstalacion > 0 ? `
+                    <tr style="border-bottom: 1px solid #2d3748;">
+                        <td style="padding: 12px 0; padding-left: 20px; color: var(--text-dim); font-size: 0.95rem;">(-) Egresos: Instalación (Año 1)</td>
+                        <td style="text-align: right; color: var(--danger);">-$${costoInstalacion.toLocaleString('es-MX', {maximumFractionDigits: 0})}</td>
+                    </tr>
+                    ` : ''}
+                    <tr style="border-bottom: 2px solid var(--text-dim);">
+                        <td style="padding: 12px 0; padding-left: 20px; color: var(--text-dim); font-size: 0.95rem;">(-) Egresos: Mantenimiento (Años 1-${aniosFaltantes})</td>
+                        <td style="text-align: right; color: var(--danger);">-$${costoMantenimiento.toLocaleString('es-MX', {maximumFractionDigits: 0})}</td>
+                    </tr>
+                    <tr style="background: rgba(16, 185, 129, 0.05);">
+                        <td style="padding: 18px 0; font-weight: bold; font-size: 1.1rem; padding-left: 10px;">(★) UTILIDAD NETA DEL MAGUEY</td>
+                        <td style="text-align: right; font-weight: bold; font-size: 1.2rem; padding-right: 10px;" class="${utilidadNetaLote >= 0 ? 'text-green' : 'text-red'}">$${utilidadNetaLote.toLocaleString('es-MX', {maximumFractionDigits: 0})}</td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
+    } else {
+        let litros = pesoEstimadoCosecha / PARAMETROS_MERCADO.costosMezcal.eficienciaConversion;
+        let botellas = litros * 1.3333333333333333;
+        let ingresosMezcal = botellas * COSTOS_FIJOS.ventaPromedioMezcal;
+        
+        let costoMateriaPrima = pesoEstimadoCosecha * DATOS_AGAVE[proyectoActual.variedad].precioKgCrudo;
+        let costoMaquilaEnvasado = (litros * PARAMETROS_MERCADO.costosMezcal.maquilaPorLitro) + (botellas * PARAMETROS_MERCADO.costosMezcal.envasadoPorBotella);
+        let gastosAdmin = PARAMETROS_MERCADO.costosMezcal.gastosAdministrativosAnuales * factorEscala * aniosFaltantes; 
+        
+        let totalEgresos = costoMateriaPrima + costoMaquilaEnvasado + gastosAdmin;
+        utilidadNetaLote = ingresosMezcal - totalEgresos;
+
+        htmlContent = `
+            <table style="width: 100%; border-collapse: collapse;">
+                <tbody>
+                    <tr style="border-bottom: 1px solid #2d3748;">
+                        <td style="padding: 12px 0; font-weight: bold; font-size: 0.95rem;">(+) INGRESOS POR MEZCAL</td>
+                        <td style="text-align: right; color: var(--primary); font-weight: bold;">$${ingresosMezcal.toLocaleString('es-MX', {maximumFractionDigits: 0})}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2d3748;">
+                        <td style="padding: 12px 0; padding-left: 20px; color: var(--text-dim); font-size: 0.95rem;">(-) Costo de Materia Prima (Compra)</td>
+                        <td style="text-align: right; color: var(--danger);">-$${costoMateriaPrima.toLocaleString('es-MX', {maximumFractionDigits: 0})}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2d3748;">
+                        <td style="padding: 12px 0; padding-left: 20px; color: var(--text-dim); font-size: 0.95rem;">(-) Gastos de Maquila y Envasado</td>
+                        <td style="text-align: right; color: var(--danger);">-$${costoMaquilaEnvasado.toLocaleString('es-MX', {maximumFractionDigits: 0})}</td>
+                    </tr>
+                    <tr style="border-bottom: 2px solid var(--text-dim);">
+                        <td style="padding: 12px 0; padding-left: 20px; color: var(--text-dim); font-size: 0.95rem;">(-) Gastos de Administración y Trámites</td>
+                        <td style="text-align: right; color: var(--danger);">-$${gastosAdmin.toLocaleString('es-MX', {maximumFractionDigits: 0})}</td>
+                    </tr>
+                    <tr style="background: rgba(16, 185, 129, 0.05);">
+                        <td style="padding: 18px 0; font-weight: bold; font-size: 1.1rem; padding-left: 10px;">(★) UTILIDAD NETA DEL MEZCAL</td>
+                        <td style="text-align: right; font-weight: bold; font-size: 1.2rem; padding-right: 10px;" class="${utilidadNetaLote >= 0 ? 'text-green' : 'text-red'}">$${utilidadNetaLote.toLocaleString('es-MX', {maximumFractionDigits: 0})}</td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
+    }
 
     document.getElementById("titulo-caja-derecha").innerText = "📊 Estado de Resultados Proforma";
     document.getElementById("vista-tabla").classList.add("hidden");
     document.getElementById("vista-er").classList.remove("hidden");
     
     document.getElementById("er-titulo-lote").innerHTML = `Análisis del Lote T-${aniosFaltantes} <span style="color:var(--text-dim); font-size:0.85rem;">(Proyección a Cosecha Óptima)</span>`;
-    document.getElementById("er-ingresos").innerText = `$${ingresos.toLocaleString('es-MX', {maximumFractionDigits: 0})}`;
-    document.getElementById("er-costos").innerText = `-$${costosMantenimiento.toLocaleString('es-MX', {maximumFractionDigits: 0})}`;
-    document.getElementById("er-procesamiento").innerText = `-$${costosProcesamiento.toLocaleString('es-MX', {maximumFractionDigits: 0})}`;
     
-    const utilEl = document.getElementById("er-utilidad");
-    utilEl.innerText = `$${utilidadNetaLote.toLocaleString('es-MX', {maximumFractionDigits: 0})}`;
-    utilEl.className = utilidadNetaLote >= 0 ? 'text-green' : 'text-red';
+    const containerTablaEr = document.querySelector('#vista-er > div:last-child');
+    if (containerTablaEr) {
+        containerTablaEr.innerHTML = htmlContent;
+    }
 }
 
 /**
