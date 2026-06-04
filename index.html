@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Política de Seguridad de Contenidos (CSP) para prevenir ataques XSS -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;">
-    <title>Agromaguey Pro | Plataforma de Gestión e Inversión</title>
+    <title>Agromaguey Group | Análisis Técnico-Económico y Gestión de Activos</title>
     <link rel="stylesheet" href="styles.css">
     <!-- Fijar versión de CDN de Chart.js para estabilidad -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -15,15 +15,15 @@
     <div id="seccion-informativa">
         <nav class="apple-nav">
             <div class="nav-content">
-                <span class="logo">🌵 Agromaguey <span>Investor</span></span>
-                <button id="btn-ir-wizard" class="btn-portal">Acceder al Portal →</button>
+                <span class="logo">🌵 Agromaguey <span>Group</span></span>
+                <button id="btn-ir-wizard" class="btn-portal">Acceso al Portal →</button>
             </div>
         </nav>
 
         <main class="apple-main">
             <header class="hero-investor">
-                <h1>Transparencia en la cadena de valor.</h1>
-                <p>Problema Prototípico: Diagnóstico Estructural de Santa María Albarradas.</p>
+                <h1>Un mercado a largo plazo.</h1>
+                <p>Análisis técnico-económico para la diversificación de cultivos en México.</p>
             </header>
 
             <section class="apple-grid">
@@ -111,10 +111,12 @@
                         </div>
                     </div>
                 </div>
+                
             </section>
         </main>
     </div>
 
+    <!-- Asistente de Configuración (Wizard) -->
     <div id="seccion-wizard" class="app-layout hidden" style="justify-content: center; align-items: center; min-height: 100vh; background: var(--dark-bg);">
         <div class="card-modern" style="width: 100%; max-width: 600px; padding: 40px; margin: auto;">
             
@@ -191,6 +193,7 @@
         </div>
     </div>
     
+    <!-- Panel de Gestión y Control -->
     <div id="seccion-gestion" class="hidden" style="background: var(--dark-bg); min-height: 100vh; padding: 30px;">
         <div style="max-width: 1200px; margin: 0 auto;">
             
@@ -315,17 +318,21 @@
             </div>
 
             <div class="dashboard-card card-modern" style="margin-top: 20px;">
-            <h3 style="margin-top: 0; color: white;">🌦️ Probabilidad de Siniestro (Distribución Normal)</h3>
-            <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 15px;">
-                Área roja representa temperaturas bajo 0°C (12% de probabilidad histórica de pérdida por heladas).
-            </p>
-            <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
-                <canvas id="graficaProbabilidad"></canvas>
+                <h3 style="margin-top: 0; color: white;">🌦️ Probabilidad de Siniestro (Distribución Normal)</h3>
+                <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 15px;">
+                    Área roja representa temperaturas bajo 0°C (12% de probabilidad histórica de pérdida por heladas).
+                </p>
+                <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="graficaProbabilidad"></canvas>
+                </div>
             </div>
         </div>
-        </div>
+
+       
+        
     </div>
     
     <script type="module" src="app.js"></script>
 </body>
 </html>
+
