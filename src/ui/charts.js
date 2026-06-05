@@ -18,11 +18,116 @@
 import { calcularGauss } from '../core/probabilidad.js';
 
 /**
- * Referencia a la instancia activa de la gráfica de acumulación de riqueza.
- * Se destruye y recrea en cada renderizado para evitar superposición de datos.
- * @type {Chart|undefined}
+ * Referencia a la instancia activa de la gráfica principal.
+ * Se utiliza el método .update() si ya existe para evitar fugas de memoria.
+ * @type {Chart|null}
  */
-let chartRef;
+let chartPrincipal = null;
+
+/**
+ * Función auxiliar para obtener la configuración de los datasets según la vista seleccionada.
+ * Complejidad O(1) al no iterar, solo retorna el esquema estructurado para Chart.js.
+ * 
+ * @param {string} vista - 'financiera' (flujo neto acumulado) o 'comercial' (ingresos y costos)
+ * @param {Object} datos - Objeto con { acumulado, ingresos, costos }
+ * @returns {Object[]} Arreglo de datasets para Chart.js
+ */
+function obtenerConfiguracionDatasets(vista, datos) {
+    if (vista === 'comercial') {
+        return [
+            {
+                type: 'bar',
+                label: 'Ingresos Brutos ($ MXN)',
+                data: datos.ingresos,
+                backgroundColor: 'rgba(59, 130, 246, 0.8)', // Azul
+                borderColor: '#3b82f6',
+                borderWidth: 1,
+                borderRadius: 4
+            },
+            {
+                type: 'bar',
+                label: 'Costos Operativos/Inversión ($ MXN)',
+                data: datos.costos,
+                backgroundColor: 'rgba(244, 63, 94, 0.8)', // Rojo
+                borderColor: '#f43f5e',
+                borderWidth: 1,
+                borderRadius: 4
+            }
+        ];
+    }
+    
+    // Por defecto: 'financiera'
+    return [{
+        type: 'line',
+        label: 'Utilidad Neta Acumulada ($ MXN)',
+        data: datos.acumulado,
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        fill: true,
+        tension: 0.3,
+        borderWidth: 3,
+        pointBackgroundColor: '#10b981',
+        pointRadius: 5
+    }];
+}
+
+/**
+ * Renderiza o actualiza la gráfica principal del dashboard.
+ * Soporta múltiples vistas modificando los datasets dinámicamente.
+ *
+ * @param {string} vista - Tipo de vista a renderizar ('financiera' o 'comercial').
+ * @param {string[]} labels - Etiquetas del eje horizontal (e.g., "Año 1", "Año 2", ...).
+ * @param {Object} datos - Objeto con los arreglos de datos correspondientes.
+ * @returns {void}
+ */
+export function renderGraficaPrincipal(vista, labels, datos) {
+    const ctx = document.getElementById('graficaFinanciera').getContext('2d');
+    
+    // Actualizar el título de la caja según la vista
+    const tituloCaja = document.querySelector(".chart-box h3");
+    if (tituloCaja) {
+        tituloCaja.innerText = vista === 'comercial' 
+            ? "📊 Flujo Comercial (Ingresos vs Costos)" 
+            : "📈 Curva de Acumulación de Riqueza";
+    }
+
+    const datasetsConfig = obtenerConfiguracionDatasets(vista, datos);
+
+    if (chartPrincipal) {
+        // Optimización: Si la gráfica ya existe, solo actualizamos datos y repintamos (evita memory leaks)
+        chartPrincipal.data.labels = labels;
+        chartPrincipal.data.datasets = datasetsConfig;
+        chartPrincipal.options.plugins.legend.display = vista === 'comercial';
+        chartPrincipal.update();
+    } else {
+        // Inicialización la primera vez
+        chartPrincipal = new Chart(ctx, {
+            type: vista === 'comercial' ? 'bar' : 'line', 
+            data: {
+                labels: labels,
+                datasets: datasetsConfig
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: vista === 'comercial', labels: { color: '#9ca3af' } }
+                },
+                scales: {
+                    y: { 
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }, 
+                        ticks: { color: '#9ca3af' },
+                        title: { display: true, text: 'Monto ($ MXN)', color: '#9ca3af' }
+                    },
+                    x: { 
+                        grid: { display: false }, 
+                        ticks: { color: '#e5e7eb', font: { weight: 'bold' } },
+                        title: { display: true, text: 'Horizonte de Tiempo', color: '#9ca3af' }
+                    }
+                }
+            }
+        });
+    }
+}
 
 /**
  * Referencia a la instancia activa de la gráfica de excedentes de mercado.
@@ -30,61 +135,6 @@ let chartRef;
  * @type {Chart|null}
  */
 let chartExcedentes = null; 
-
-/**
- * Renderiza la gráfica de línea con área rellena que muestra la evolución
- * de la utilidad neta acumulada a lo largo del horizonte temporal del proyecto.
- *
- * Esta visualización permite al usuario identificar el punto de inflexión
- * donde la utilidad acumulada pasa de negativa a positiva, indicando
- * la recuperación de la inversión inicial.
- *
- * @param {string[]} labels          - Etiquetas del eje horizontal (e.g., "Año 1", "Año 2", ...).
- * @param {number[]} datosAcumulados - Valores de utilidad neta acumulada por período (MXN).
- * @returns {void}
- */
-export function renderGraficaEvolutiva(labels, datosAcumulados) {
-    const ctx = document.getElementById('graficaFinanciera').getContext('2d');
-    if (chartRef) chartRef.destroy();
-
-    document.querySelector(".chart-box h3").innerText = "📈 Curva de Acumulación de Riqueza";
-
-    chartRef = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Utilidad Neta Acumulada ($ MXN)',
-                data: datosAcumulados,
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                fill: true,
-                tension: 0.3,
-                borderWidth: 3,
-                pointBackgroundColor: '#10b981',
-                pointRadius: 5
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: { 
-                    grid: { color: 'rgba(255, 255, 255, 0.1)' }, 
-                    ticks: { color: '#9ca3af' },
-                    title: { display: true, text: 'Patrimonio Neto ($)', color: '#9ca3af' }
-                },
-                x: { 
-                    grid: { display: false }, 
-                    ticks: { color: '#e5e7eb', font: { weight: 'bold' } },
-                    title: { display: true, text: 'Horizonte de Tiempo de Cosecha', color: '#9ca3af' }
-                }
-            }
-        }
-    });
-}
 
 /**
  * Renderiza la gráfica de excedentes de mercado con las curvas de oferta

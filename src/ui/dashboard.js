@@ -16,7 +16,21 @@
 import { COSTOS_FIJOS, DATOS_AGAVE, FINANZAS_EXTERNAS, BIOMASA, MERCADO_HIJUELOS, PARAMETROS_MERCADO } from '../config/constantes.js';
 import { generarProyeccionesAgricolas, calcularFlujoNetoGlobal } from '../core/finanzas.js';
 import { calcularEquilibrioYExcedentes } from '../core/mercado.js';
-import { renderGraficaEvolutiva, actualizarGraficaExcedentes, renderizarGraficaRiesgo } from './charts.js';
+import { renderGraficaPrincipal, actualizarGraficaExcedentes, renderizarGraficaRiesgo } from './charts.js';
+
+// Variable para almacenar datos pre-calculados de la gráfica (O(1) acceso)
+export let datosGraficaActiva = null;
+export let vistaGraficaActiva = 'financiera';
+
+/**
+ * Cambia la vista de la gráfica principal y la repinta usando Chart.js .update()
+ * @param {string} nuevaVista - 'financiera' o 'comercial'
+ */
+export function alternarVistaGrafica(nuevaVista) {
+    if (!datosGraficaActiva) return;
+    vistaGraficaActiva = nuevaVista;
+    renderGraficaPrincipal(vistaGraficaActiva, datosGraficaActiva.labels, datosGraficaActiva.datos);
+}
 
 // =====================================================================
 // 1. NAVEGACIÓN SPA (Single Page Application)
@@ -279,7 +293,9 @@ export function renderizarEscenarioBase(proyectoActual) {
     tablaBody.innerHTML = ""; 
 
     const labelsEvolutiva = [];
-    const datosEvolutiva = [];
+    const datosAcumulados = [];
+    const datosIngresos = [];
+    const datosCostos = [];
     let utilidadAcumulada = 0;
 
     proyeccion.desglosePorAnio.forEach(fila => {
@@ -311,7 +327,9 @@ export function renderizarEscenarioBase(proyectoActual) {
         
         labelsEvolutiva.push(`Año ${fila.anio}`);
         utilidadAcumulada += (fila.ingresos - fila.costos);
-        datosEvolutiva.push(utilidadAcumulada);
+        datosAcumulados.push(utilidadAcumulada);
+        datosIngresos.push(fila.ingresos);
+        datosCostos.push(fila.costos);
     });
 
     document.getElementById("ingresos-val").innerText = `$${proyeccion.ingresosBrutosTotales.toLocaleString('es-MX')}`;
@@ -321,7 +339,17 @@ export function renderizarEscenarioBase(proyectoActual) {
     document.getElementById("balance-val").innerText = `$${balanceNeto.toLocaleString('es-MX')}`;
     document.getElementById("balance-val").className = balanceNeto >= 0 ? 'text-green' : 'text-red';
 
-    renderGraficaEvolutiva(labelsEvolutiva, datosEvolutiva);
+    // Guardar datos en memoria para acceso O(1) al cambiar de vista
+    datosGraficaActiva = {
+        labels: labelsEvolutiva,
+        datos: {
+            acumulado: datosAcumulados,
+            ingresos: datosIngresos,
+            costos: datosCostos
+        }
+    };
+
+    renderGraficaPrincipal(vistaGraficaActiva, datosGraficaActiva.labels, datosGraficaActiva.datos);
 
     const calculoFinanciero = calcularFlujoNetoGlobal(
         proyeccion.ingresosBrutosTotales, 

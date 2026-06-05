@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-
+    
     <div id="seccion-informativa">
         <nav class="apple-nav">
             <div class="nav-content">
@@ -216,8 +216,18 @@
                     </div>
                     
                     <div class="dashboard-visuals" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <div class="card-modern chart-box">
-                            <h3>📈 Distribución Financiera</h3>
+                        <div class="card-modern chart-box" style="display: flex; flex-direction: column;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <h3 style="margin: 0;">📈 Curva de Acumulación de Riqueza</h3>
+                                <div class="toggle-grafica" style="display: flex; gap: 5px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px;">
+                                    <label style="cursor: pointer; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; background: var(--primary); color: white;" class="toggle-label active">
+                                        <input type="radio" name="vistaGrafica" value="financiera" checked style="display: none;"> Financiera
+                                    </label>
+                                    <label style="cursor: pointer; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; color: #9ca3af;" class="toggle-label">
+                                        <input type="radio" name="vistaGrafica" value="comercial" style="display: none;"> Comercial
+                                    </label>
+                                </div>
+                            </div>
                             <div class="chart-wrapper">
                                 <canvas id="graficaFinanciera"></canvas>
                             </div>
@@ -272,7 +282,7 @@
         </div>
         
         <div class="dashboard-card card-modern" style="margin-top: 20px; margin-bottom: 20px;">
-            <h3 style="margin-top: 0; color: white;">🏢 Estado de Resultados Global (Ajustado a Riesgo: 37.5%)</h3>
+            <h3 style="margin-top: 0; color: white;">🏢 Estado de Resultados Global (Ajustado a Riesgo: 12%)</h3>
             <div class="stats-row" style="margin-top: 15px;">
                 <div class="stat-pill">
                     <small>Inversión Inicial (CAPEX)</small>

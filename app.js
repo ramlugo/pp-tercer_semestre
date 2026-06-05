@@ -29,7 +29,8 @@ import {
     renderizarEscenarioBase,
     renderizarMicroeconomia,
     generarEstadoResultados,
-    cerrarEstadoResultados
+    cerrarEstadoResultados,
+    alternarVistaGrafica
 } from './src/ui/dashboard.js';
 
 // =====================================================================
@@ -182,6 +183,26 @@ function inicializarEventos() {
                 simularCultivos();
             } else if (e.target.id === 'btn-activar-destilacion') {
                 simularMezcal();
+            }
+        });
+    }
+
+    // 7. Delegación de eventos para el Toggle de Gráficas
+    const contenedorToggle = document.querySelector('.toggle-grafica');
+    if (contenedorToggle) {
+        contenedorToggle.addEventListener('change', (e) => {
+            if (e.target.name === 'vistaGrafica') {
+                // Actualizar estilos del Toggle
+                document.querySelectorAll('.toggle-grafica .toggle-label').forEach(lbl => {
+                    lbl.style.background = 'transparent';
+                    lbl.style.color = '#9ca3af';
+                });
+                const activeLabel = e.target.closest('label');
+                activeLabel.style.background = 'var(--primary)';
+                activeLabel.style.color = 'white';
+                
+                // Ejecutar actualización de la gráfica
+                alternarVistaGrafica(e.target.value);
             }
         });
     }
