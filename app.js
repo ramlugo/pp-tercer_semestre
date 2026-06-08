@@ -30,8 +30,10 @@ import {
     renderizarMicroeconomia,
     generarEstadoResultados,
     cerrarEstadoResultados,
-    alternarVistaGrafica
+    alternarVistaGrafica,
+    inicializarControlesEscenario
 } from './src/ui/dashboard.js';
+import { AppState } from './src/config/constantes.js';
 
 // =====================================================================
 // ESTADO GLOBAL DE LA APLICACIÓN
@@ -56,35 +58,7 @@ const historialSimulaciones = [];
 // FUNCIONES DEL CONTROLADOR
 // =====================================================================
 
-/**
- * Activa el escenario de destilación de mezcal y recalcula la simulación.
- *
- * Modifica el modelo de negocio del proyecto activo a "con-palenque",
- * lo que redirige los ingresos del canal de venta de materia prima cruda
- * al canal de producto terminado (mezcal destilado), con sus costos
- * de procesamiento asociados.
- *
- * @returns {void}
- */
-function simularMezcal() {
-    proyectoActual.modelo = "con-palenque";
-    renderizarEscenarioBase(proyectoActual);
-}
 
-/**
- * Activa el escenario de cultivos intercalados y recalcula la simulación.
- *
- * Los cultivos intercalados (milpa, frijol, calabaza) reducen el costo
- * de mantenimiento por planta en un 30% debido a la sinergia agroecológica:
- * mejora de la retención de humedad, control natural de plagas y generación
- * de ingresos complementarios durante el período de maduración del agave.
- *
- * @returns {void}
- */
-function simularCultivos() {
-    proyectoActual.cultivosIntercalados = true;
-    renderizarEscenarioBase(proyectoActual);
-}
 
 /**
  * Inicializa los controles interactivos del módulo de análisis microeconómico.
@@ -121,12 +95,32 @@ function inicializarMicroeconomia() {
  * @returns {void}
  */
 function inicializarEventos() {
+    // Inicializar controles de escenario dinámico
+    inicializarControlesEscenario(proyectoActual);
+
     // 1. Navegación e inicio
     const btnIrWizard = document.getElementById('btn-ir-wizard');
     if (btnIrWizard) btnIrWizard.addEventListener('click', irAlWizard);
 
-    const btnIrInformativa = document.getElementById('btn-ir-informativa');
-    if (btnIrInformativa) btnIrInformativa.addEventListener('click', irAInformativa);
+    const btnIrInformativa = document.getElementById("btn-ir-informativa");
+    if (btnIrInformativa) {
+        btnIrInformativa.addEventListener("click", () => {
+            document.getElementById("seccion-gestion").classList.add("hidden");
+            document.getElementById("seccion-informativa").classList.remove("hidden");
+        });
+    }
+
+    const btnThemeToggle = document.getElementById("btn-theme-toggle");
+    if (btnThemeToggle) {
+        btnThemeToggle.addEventListener("click", () => {
+            document.body.classList.toggle("light-theme");
+            if (document.body.classList.contains("light-theme")) {
+                btnThemeToggle.innerHTML = "🌙";
+            } else {
+                btnThemeToggle.innerHTML = "☀️";
+            }
+        });
+    }
 
     // 2. Navegación del Asistente (Wizard)
     const btnStep1Next = document.getElementById('btn-wizard-step1-next');
@@ -175,17 +169,7 @@ function inicializarEventos() {
         });
     }
 
-    // 6. Delegación de eventos para el banner de alerta de quiebra estructural
-    const headerDesc = document.getElementById('header-desc');
-    if (headerDesc) {
-        headerDesc.addEventListener('click', (e) => {
-            if (e.target.id === 'btn-activar-intercalados') {
-                simularCultivos();
-            } else if (e.target.id === 'btn-activar-destilacion') {
-                simularMezcal();
-            }
-        });
-    }
+
 
     // 7. Delegación de eventos para el Toggle de Gráficas
     const contenedorToggle = document.querySelector('.toggle-grafica');

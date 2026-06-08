@@ -11,7 +11,7 @@
  * y retornan resultados que son consumidos por la capa de interfaz de usuario.
  */
 
-import { COSTOS_FIJOS, DATOS_AGAVE, FINANZAS_EXTERNAS, BIOMASA, MERCADO_HIJUELOS, PARAMETROS_MERCADO } from '../config/constantes.js';
+import { COSTOS_FIJOS, DATOS_AGAVE, FINANZAS_EXTERNAS, BIOMASA, MERCADO_HIJUELOS, PARAMETROS_MERCADO, AppState } from '../config/constantes.js';
 
 /**
  * Genera la proyección anualizada de producción agrícola, costos directos e ingresos.
@@ -64,7 +64,7 @@ export function generarProyeccionesAgricolas(proyecto) {
     for (let i = 1; i <= proyecto.aniosProyecto; i++) {
         let ingresosAnio = 0;
         let costosAnio = 0;
-        if (proyecto.modelo === 'solo-cultivo') {
+        if (AppState.escenarioActual === 'maguey') {
             costosAnio += (COSTOS_FIJOS.mantenimientoAnual + COSTOS_FIJOS.salariosAnuales) * (inventarioVivo / 1000);
             if (proyecto.cultivosIntercalados) {
                 costosAnio *= 0.70; 
@@ -85,17 +85,17 @@ export function generarProyeccionesAgricolas(proyecto) {
             kgCosechadosAnio = (merman * 50) + (optimas * BIOMASA.pesoOptimo);
             kgTotales += kgCosechadosAnio;
             
-            if (proyecto.modelo === 'solo-cultivo') {
-                ingresosAnio = kgCosechadosAnio * DATOS_AGAVE[proyecto.variedad].precioKgCrudo;
+            if (AppState.escenarioActual === 'maguey') {
+                ingresosAnio = kgCosechadosAnio * AppState.precioAgaveKg;
                 ingresosAnio += plantas * MERCADO_HIJUELOS.cantidadGeneradaPorPlanta * MERCADO_HIJUELOS.precioUnitario;
             } else {
                 let litrosProducidos = kgCosechadosAnio / PARAMETROS_MERCADO.costosMezcal.eficienciaConversion;
                 litrosTotales += litrosProducidos;
                 
                 let botellas = litrosProducidos * 1.3333333333333333;
-                ingresosAnio = botellas * COSTOS_FIJOS.ventaPromedioMezcal;
+                ingresosAnio = botellas * AppState.precioBotellaMezcal;
                 
-                let compraMateriaPrima = kgCosechadosAnio * DATOS_AGAVE[proyecto.variedad].precioKgCrudo;
+                let compraMateriaPrima = kgCosechadosAnio * AppState.precioAgaveKg;
                 let costoMaquila = litrosProducidos * PARAMETROS_MERCADO.costosMezcal.maquilaPorLitro;
                 let costoEnvasado = botellas * PARAMETROS_MERCADO.costosMezcal.envasadoPorBotella;
                 

@@ -134,3 +134,9 @@ export const MERCADO_HIJUELOS = {
     cantidadGeneradaPorPlanta: 3,
     precioUnitario: 10
 };
+
+export const AppState = {
+    escenarioActual: 'mezcal',
+    precioAgaveKg: 3,
+    precioBotellaMezcal: 500
+};

@@ -202,13 +202,48 @@
                     <h2 id="header-title" style="margin: 0; font-size: 2rem;">Cargando Panel...</h2>
                     <p id="header-desc" style="margin-top: 10px;">Análisis financiero activo.</p>
                 </div>
-                <button id="btn-ir-informativa" style="background: transparent; border: 1px solid #333; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s;">
-                    ← Volver a Inicio
-                </button>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <button id="btn-theme-toggle" style="background: transparent; border: 1px solid #333; color: white; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-size: 1.2rem;" title="Cambiar Tema">
+                        ☀️
+                    </button>
+                    <button id="btn-ir-informativa" style="background: transparent; border: 1px solid #333; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s;">
+                        ← Volver a Inicio
+                    </button>
+                </div>
             </header>
             
             <div class="grid-main">
                 <section id="seccion-admin">
+                    <div class="card-modern" style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; border: 1px solid #2d3748;">
+                        
+                        <div id="panel-parametros" style="display: flex; gap: 20px; align-items: center; min-width: 200px;">
+                            <label style="color: white; font-weight: bold; font-size: 1.05rem;">Escenario Estratégico:</label>
+                            
+                            <div id="input-mezcal-container">
+                                <label style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 4px;">Precio Botella Mezcal ($ MXN)</label>
+                                <input type="number" id="input-precio-mezcal" value="500" style="width: 150px; padding: 8px; border-radius: 6px; border: 1px solid #333; background: #111; color: white;">
+                            </div>
+                            
+                            <div id="input-maguey-container" class="hidden">
+                                <label style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 4px;">Precio Agave por Kg ($ MXN)</label>
+                                <input type="number" id="input-precio-maguey" value="3" style="width: 150px; padding: 8px; border-radius: 6px; border: 1px solid #333; background: #111; color: white;">
+                            </div>
+
+                            <button id="btn-recalcular" class="btn-save" style="width: auto; padding: 8px 15px; background: var(--primary); display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 18px;">
+                                Recalcular 🔄
+                            </button>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                            <button id="btn-toggle-escenario" class="btn-save" style="padding: 10px 15px; width: auto; background: #3b82f6; display: flex; align-items: center; justify-content: center;">
+                                🥃 Cambiar a Destilación
+                            </button>
+                            <button id="btn-toggle-intercalados" class="btn-save" style="padding: 10px 15px; width: auto; background: #10b981; display: flex; align-items: center; justify-content: center;">
+                                🌱 Activar Cultivos Intercalados
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="stats-row stats-row-hero">
                         <div class="stat-pill"><small>Ingresos Esperados</small><span id="ingresos-val" class="text-green">$0</span></div>
                         <div class="stat-pill"><small>Costos Estimados</small><span id="costos-val" class="text-red">$0</span></div>

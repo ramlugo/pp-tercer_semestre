@@ -13,7 +13,7 @@
  * delegando los cálculos financieros y estadísticos al Core Matemático.
  */
 
-import { COSTOS_FIJOS, DATOS_AGAVE, FINANZAS_EXTERNAS, BIOMASA, MERCADO_HIJUELOS, PARAMETROS_MERCADO } from '../config/constantes.js';
+import { COSTOS_FIJOS, DATOS_AGAVE, FINANZAS_EXTERNAS, BIOMASA, MERCADO_HIJUELOS, PARAMETROS_MERCADO, AppState } from '../config/constantes.js';
 import { generarProyeccionesAgricolas, calcularFlujoNetoGlobal } from '../core/finanzas.js';
 import { calcularEquilibrioYExcedentes } from '../core/mercado.js';
 import { renderGraficaPrincipal, actualizarGraficaExcedentes, renderizarGraficaRiesgo } from './charts.js';
@@ -182,6 +182,10 @@ export function prepararPaso3() {
 export function crearProyecto(proyectoActual, inicializarMicroeconomia) {
     proyectoActual.nombre = document.getElementById("w-nombre").value || "Proyecto Sin Nombre";
     proyectoActual.modelo = document.getElementById("w-modelo").value;
+    AppState.escenarioActual = proyectoActual.modelo === 'solo-cultivo' ? 'maguey' : 'mezcal';
+    
+    actualizarBotonesEscenario(proyectoActual);
+
     proyectoActual.estado = document.getElementById("w-estado").value;
     proyectoActual.tipoCosecha = proyectoActual.estado === "nueva" ? "unica" : document.getElementById("w-tipo-cosecha").value;
     proyectoActual.variedad = document.getElementById("w-variedad").value;
@@ -220,7 +224,7 @@ export function crearProyecto(proyectoActual, inicializarMicroeconomia) {
     let alertaLiquidez = false;
     let liquidezProyectada = proyectoActual.presupuesto;
     let costoMantenimientoAnual = 0;
-    if (proyectoActual.modelo === 'solo-cultivo') {
+    if (AppState.escenarioActual === 'maguey') {
         costoMantenimientoAnual = (COSTOS_FIJOS.mantenimientoAnual + COSTOS_FIJOS.salariosAnuales) * (plantasTotales / 1000);
     } else {
         costoMantenimientoAnual = PARAMETROS_MERCADO.costosMezcal.gastosAdministrativosAnuales * (plantasTotales / 1000);
@@ -230,7 +234,7 @@ export function crearProyecto(proyectoActual, inicializarMicroeconomia) {
         liquidezProyectada -= costoMantenimientoAnual;
         let loteCosechado = proyectoActual.inventario.find(l => l.aniosFaltantes === año);
         if (loteCosechado) {
-            let ingresosLote = loteCosechado.plantas * DATOS_AGAVE[proyectoActual.variedad].kgPorPlanta * DATOS_AGAVE[proyectoActual.variedad].precioKgCrudo;
+            let ingresosLote = loteCosechado.plantas * DATOS_AGAVE[proyectoActual.variedad].kgPorPlanta * AppState.precioAgaveKg;
             liquidezProyectada += ingresosLote;
         }
         if (liquidezProyectada < 0) {
@@ -299,7 +303,7 @@ export function renderizarEscenarioBase(proyectoActual) {
     let utilidadAcumulada = 0;
 
     proyeccion.desglosePorAnio.forEach(fila => {
-        const modeloTexto = proyectoActual.modelo === 'solo-cultivo' ? 'Venta Crudo' : 'Destilación';
+        const modeloTexto = AppState.escenarioActual === 'maguey' ? 'Venta Crudo' : 'Destilación';
         
         const botonDetalles = fila.kgCosechados > 0 
             ? `<button class="btn-ver-lote" data-anio="${fila.anio}" style="background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold;">Ver Lote →</button>`
@@ -404,8 +408,8 @@ export function generarEstadoResultados(aniosFaltantes, proyectoActual) {
     let htmlContent = "";
     let utilidadNetaLote = 0;
 
-    if (proyectoActual.modelo === "solo-cultivo") {
-        let ingresosAgave = pesoEstimadoCosecha * DATOS_AGAVE[proyectoActual.variedad].precioKgCrudo;
+    if (AppState.escenarioActual === "maguey") {
+        let ingresosAgave = pesoEstimadoCosecha * AppState.precioAgaveKg;
         let ingresosHijuelos = plantas * MERCADO_HIJUELOS.cantidadGeneradaPorPlanta * MERCADO_HIJUELOS.precioUnitario;
         let totalIngresos = ingresosAgave + ingresosHijuelos;
         
@@ -451,9 +455,9 @@ export function generarEstadoResultados(aniosFaltantes, proyectoActual) {
     } else {
         let litros = pesoEstimadoCosecha / PARAMETROS_MERCADO.costosMezcal.eficienciaConversion;
         let botellas = litros * 1.3333333333333333;
-        let ingresosMezcal = botellas * COSTOS_FIJOS.ventaPromedioMezcal;
+        let ingresosMezcal = botellas * AppState.precioBotellaMezcal;
         
-        let costoMateriaPrima = pesoEstimadoCosecha * DATOS_AGAVE[proyectoActual.variedad].precioKgCrudo;
+        let costoMateriaPrima = pesoEstimadoCosecha * AppState.precioAgaveKg;
         let costoMaquilaEnvasado = (litros * PARAMETROS_MERCADO.costosMezcal.maquilaPorLitro) + (botellas * PARAMETROS_MERCADO.costosMezcal.envasadoPorBotella);
         let gastosAdmin = PARAMETROS_MERCADO.costosMezcal.gastosAdministrativosAnuales * factorEscala * aniosFaltantes; 
         
@@ -537,7 +541,7 @@ export function cerrarEstadoResultados() {
  */
 export function renderizarMicroeconomia(proyectoActual) {
     const proyeccion = generarProyeccionesAgricolas(proyectoActual);
-    const esAgave = proyectoActual.modelo === 'solo-cultivo';
+    const esAgave = AppState.escenarioActual === 'maguey';
     const slider = document.getElementById("sliderPrecio");
     const labelPrecio = document.querySelector('label[for="sliderPrecio"]');
     
@@ -545,13 +549,13 @@ export function renderizarMicroeconomia(proyectoActual) {
         slider.min = 5;
         slider.max = 35;
         slider.step = 1;
-        if (slider.value > 35) slider.value = DATOS_AGAVE[proyectoActual.variedad].precioKgCrudo;
+        if (slider.value > 35) slider.value = AppState.precioAgaveKg;
         labelPrecio.innerHTML = `Precio de Venta Agave Crudo (por Kg): <strong id="valorPrecio" style="color: var(--primary); font-size: 1.1rem;">$${slider.value}</strong>`;
     } else {
         slider.min = 300;
         slider.max = 1600;
         slider.step = 10;
-        if (slider.value < 300) slider.value = COSTOS_FIJOS.ventaPromedioMezcal;
+        if (slider.value < 300) slider.value = AppState.precioBotellaMezcal;
         labelPrecio.innerHTML = `Precio de Venta Mezcal (Botella 750ml): <strong id="valorPrecio" style="color: var(--primary); font-size: 1.1rem;">$${slider.value}</strong>`;
     }
 
@@ -559,7 +563,7 @@ export function renderizarMicroeconomia(proyectoActual) {
     const tienePalenque = document.getElementById("togglePalenque").checked;
     const volumen = esAgave ? proyeccion.kgTotales : proyeccion.litrosTotales;
     
-    const analisisMercado = calcularEquilibrioYExcedentes(precioActual, volumen, proyectoActual.modelo, tienePalenque);
+    const analisisMercado = calcularEquilibrioYExcedentes(precioActual, volumen, AppState.escenarioActual === 'maguey' ? 'solo-cultivo' : 'con-palenque', tienePalenque);
 
     if (!analisisMercado.viable) {
         console.warn("Precio fuera de límites rentables.");
@@ -615,14 +619,85 @@ function actualizarKPIs(calculo, proyectoActual) {
 
     const headerDesc = document.getElementById("header-desc");
     if (calculo.flujoNetoAcumulado < 0) {
-        headerDesc.innerHTML = `⚠️ <strong>Peligro de Quiebra Estructural:</strong> El flujo de efectivo libre es negativo. Los ingresos ajustados al riesgo no cubren el CAPEX y OPEX.<br>
-            <div style="margin-top: 12px; display: flex; gap: 10px;">
-                ${!proyectoActual.cultivosIntercalados ? `<button id="btn-activar-intercalados" class="btn-save" style="padding: 8px 15px; width: auto; background: #10b981; font-size: 0.85rem;">🌱 Activar Cultivos Intercalados</button>` : ''}
-                ${proyectoActual.modelo === 'solo-cultivo' ? `<button id="btn-activar-destilacion" class="btn-save" style="padding: 8px 15px; width: auto; background: #3b82f6; font-size: 0.85rem;">🥃 Activar Destilación</button>` : ''}
-            </div>`;
+        headerDesc.innerHTML = `⚠️ <strong>Peligro de Quiebra Estructural:</strong> El flujo de efectivo libre es negativo. Los ingresos ajustados al riesgo no cubren el CAPEX y OPEX.`;
         headerDesc.style.color = "#f43f5e";
+        headerDesc.classList.add("text-red");
     } else {
         headerDesc.innerHTML = "Análisis financiero activo.";
         headerDesc.style.color = "var(--text-dim)";
+        headerDesc.classList.remove("text-red");
     }
+}
+
+export function actualizarBotonesEscenario(proyectoActual) {
+    const btnToggleEscenario = document.getElementById("btn-toggle-escenario");
+    const btnToggleIntercalados = document.getElementById("btn-toggle-intercalados");
+    const containerMezcal = document.getElementById("input-mezcal-container");
+    const containerMaguey = document.getElementById("input-maguey-container");
+
+    if (btnToggleEscenario) {
+        if (AppState.escenarioActual === 'maguey') {
+            btnToggleEscenario.innerHTML = "🥃 Cambiar a Destilación";
+            btnToggleEscenario.style.background = "#3b82f6";
+        } else {
+            btnToggleEscenario.innerHTML = "🌵 Cambiar a Venta de Maguey";
+            btnToggleEscenario.style.background = "#d97706";
+        }
+    }
+    
+    if (btnToggleIntercalados) {
+        if (proyectoActual.cultivosIntercalados) {
+            btnToggleIntercalados.innerHTML = "❌ Desactivar Cultivos Intercalados";
+            btnToggleIntercalados.style.background = "#ef4444";
+        } else {
+            btnToggleIntercalados.innerHTML = "🌱 Activar Cultivos Intercalados";
+            btnToggleIntercalados.style.background = "#10b981";
+        }
+    }
+    
+    if (containerMezcal && containerMaguey) {
+        if (AppState.escenarioActual === 'mezcal') {
+            containerMezcal.classList.remove("hidden");
+            containerMaguey.classList.add("hidden");
+        } else {
+            containerMezcal.classList.add("hidden");
+            containerMaguey.classList.remove("hidden");
+        }
+    }
+}
+
+export function inicializarControlesEscenario(proyectoActual) {
+    const btnToggleEscenario = document.getElementById("btn-toggle-escenario");
+    const btnToggleIntercalados = document.getElementById("btn-toggle-intercalados");
+    const btnRecalcular = document.getElementById("btn-recalcular");
+
+    if (btnToggleEscenario) {
+        btnToggleEscenario.addEventListener("click", () => {
+            AppState.escenarioActual = AppState.escenarioActual === 'maguey' ? 'mezcal' : 'maguey';
+            proyectoActual.modelo = AppState.escenarioActual === 'maguey' ? 'solo-cultivo' : 'con-palenque';
+            actualizarBotonesEscenario(proyectoActual);
+            renderizarEscenarioBase(proyectoActual);
+            cerrarEstadoResultados();
+        });
+    }
+
+    if (btnToggleIntercalados) {
+        btnToggleIntercalados.addEventListener("click", () => {
+            proyectoActual.cultivosIntercalados = !proyectoActual.cultivosIntercalados;
+            actualizarBotonesEscenario(proyectoActual);
+            renderizarEscenarioBase(proyectoActual);
+            cerrarEstadoResultados();
+        });
+    }
+
+    if (btnRecalcular) {
+        btnRecalcular.addEventListener("click", () => {
+            AppState.precioBotellaMezcal = parseFloat(document.getElementById("input-precio-mezcal").value) || 500;
+            AppState.precioAgaveKg = parseFloat(document.getElementById("input-precio-maguey").value) || 3;
+            renderizarEscenarioBase(proyectoActual);
+            cerrarEstadoResultados();
+        });
+    }
+    
+    actualizarBotonesEscenario(proyectoActual);
 }

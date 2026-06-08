@@ -186,3 +186,90 @@ input:checked + .slider:before { transform: translateX(22px); }
 .impact-blue { border-left-color: #3b82f6; }
 .impact-green { border-left-color: #10b981; }
 .impact-yellow { border-left-color: #f59e0b; }
+
+/* =========================================
+   LIGHT THEME OVERRIDES
+   ========================================= */
+body.light-theme {
+    --dark-bg: #f3f4f6;
+    --dark-card: #ffffff;
+    --text-dim: #4b5563;
+}
+
+body.light-theme #seccion-gestion,
+body.light-theme #seccion-wizard {
+    background: var(--dark-bg) !important;
+    color: #111827 !important;
+}
+
+body.light-theme h1, body.light-theme h2, body.light-theme h3, body.light-theme h4, 
+body.light-theme label, body.light-theme p, body.light-theme span {
+    color: #111827 !important;
+}
+
+body.light-theme .text-green, body.light-theme .text-green span {
+    color: #059669 !important;
+}
+
+body.light-theme .text-red, body.light-theme .text-red span {
+    color: #dc2626 !important;
+}
+
+body.light-theme .card-modern, 
+body.light-theme .stat-pill, 
+body.light-theme .controles-grafica,
+body.light-theme .toggle-grafica {
+    background: var(--dark-card) !important;
+    border-color: #e5e7eb !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme div[style*="background: rgba(255,255,255,0.02)"],
+body.light-theme div[style*="background: rgba(0,0,0,0.2)"],
+body.light-theme div[style*="background: rgba(0,0,0,0.3)"] {
+    background: #ffffff !important;
+    border-color: #e5e7eb !important;
+}
+
+body.light-theme header, 
+body.light-theme th, 
+body.light-theme td,
+body.light-theme tr {
+    border-color: #e5e7eb !important;
+}
+
+body.light-theme thead, body.light-theme th {
+    background-color: #f9fafb !important;
+}
+
+body.light-theme input, body.light-theme select {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border-color: #d1d5db !important;
+}
+
+body.light-theme button[style*="background: transparent"] {
+    color: #111827 !important;
+    border-color: #d1d5db !important;
+}
+body.light-theme button[style*="background: transparent"]:hover {
+    background-color: #f3f4f6 !important;
+}
+
+body.light-theme .stat-pill small, 
+body.light-theme label[style*="color: var(--text-dim)"] {
+    color: #6b7280 !important;
+}
+
+body.light-theme #er-titulo-lote {
+    color: #059669 !important;
+}
+
+body.light-theme #btn-cerrar-er {
+    color: #4b5563 !important;
+}
+
+body.light-theme .chart-container canvas,
+body.light-theme .chart-wrapper canvas {
+    filter: invert(0.85) hue-rotate(180deg);
+}
