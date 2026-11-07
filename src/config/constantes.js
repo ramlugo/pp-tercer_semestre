@@ -121,7 +121,8 @@ export const PARAMETROS_MERCADO = {
 export const FINANZAS_EXTERNAS = {
     capex: 56814.20,
     opexAnual: 201000,
-    provisionRiesgo: 0.12
+    provisionRiesgo: 0.12,
+    ingresoIntercaladoAnualPorHectarea: 49000
 };
 
 export const BIOMASA = {

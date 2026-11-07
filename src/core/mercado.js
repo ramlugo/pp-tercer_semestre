@@ -56,7 +56,7 @@ export function calcularEquilibrioYExcedentes(precioVenta, volumen, modelo, tien
     const pMax = esAgave ? PARAMETROS_MERCADO.demandaMaguey.ordenadaKg : PARAMETROS_MERCADO.demandaMezcal.ordenadaLitro;
     const pMin = esAgave 
         ? PARAMETROS_MERCADO.costosMaguey.produccionKg 
-        : (tienePalenque ? PARAMETROS_MERCADO.costosMezcal.operacionPalenque : PARAMETROS_MERCADO.costosMezcal.maquila);
+        : (tienePalenque ? PARAMETROS_MERCADO.costosMezcal.operacionPalenque : PARAMETROS_MERCADO.costosMezcal.maquilaPorLitro);
     
     if (precioVenta >= pMax || precioVenta <= pMin) return { viable: false };
 

@@ -203,7 +203,7 @@ body.light-theme #seccion-wizard {
 }
 
 body.light-theme h1, body.light-theme h2, body.light-theme h3, body.light-theme h4, 
-body.light-theme label, body.light-theme p, body.light-theme span {
+body.light-theme label, body.light-theme p:not(.text-green):not(.text-red), body.light-theme span:not([style*="color"]):not(.text-green):not(.text-red) {
     color: #111827 !important;
 }
 

@@ -567,6 +567,18 @@ export function renderizarMicroeconomia(proyectoActual) {
 
     if (!analisisMercado.viable) {
         console.warn("Precio fuera de límites rentables.");
+        const pMax = esAgave ? PARAMETROS_MERCADO.demandaMaguey.ordenadaKg : PARAMETROS_MERCADO.demandaMezcal.ordenadaLitro;
+        const pMin = esAgave ? PARAMETROS_MERCADO.costosMaguey.produccionKg : (tienePalenque ? PARAMETROS_MERCADO.costosMezcal.operacionPalenque : PARAMETROS_MERCADO.costosMezcal.maquilaPorLitro);
+        
+        actualizarGraficaExcedentes(
+            pMin, 
+            precioActual, 
+            pMax, 
+            volumen, 
+            0, 
+            0,
+            esAgave
+        );
         return;
     }
 
@@ -576,7 +588,8 @@ export function renderizarMicroeconomia(proyectoActual) {
         analisisMercado.pMax, 
         volumen, 
         analisisMercado.excedenteProductor, 
-        analisisMercado.excedenteConsumidor
+        analisisMercado.excedenteConsumidor,
+        esAgave
     );
 }
 

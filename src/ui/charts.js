@@ -154,9 +154,14 @@ let chartExcedentes = null;
  * @param {number} exConsumidor       - Valor monetario del excedente del consumidor (MXN).
  * @returns {void}
  */
-export function actualizarGraficaExcedentes(costoBase, precioBotella, precioMaximo, botellasEquilibrio, exProductor, exConsumidor) {
+export function actualizarGraficaExcedentes(costoBase, precioBotella, precioMaximo, botellasEquilibrio, exProductor, exConsumidor, isMaguey = false) {
     const ctx = document.getElementById('graficaExcedentes').getContext('2d');
     if (chartExcedentes) chartExcedentes.destroy();
+
+    const labelX = isMaguey ? 'Cantidad de Agave Vendido (Kg)' : 'Cantidad de Botellas Vendidas (750ml)';
+    const labelY = isMaguey ? 'Precio por Kg ($ MXN)' : 'Precio por Botella ($ MXN)';
+    const labelPrecioMercado = isMaguey ? 'Precio de Mercado ($/Kg)' : 'Precio de Mercado ($/Botella)';
+    const labelExcedenteProd = isMaguey ? 'Excedente Productor (Agave)' : 'Excedente Productor (Marca)';
 
     const dataDemanda = [{x: 0, y: precioMaximo}, {x: botellasEquilibrio, y: precioBotella}];
     const dataOferta = [{x: 0, y: costoBase}, {x: botellasEquilibrio, y: Math.max(costoBase, precioBotella)}];
@@ -183,7 +188,7 @@ export function actualizarGraficaExcedentes(costoBase, precioBotella, precioMaxi
                     pointRadius: 0, tension: 0
                 },
                 {
-                    label: 'Precio de Mercado ($/Botella)',
+                    label: labelPrecioMercado,
                     data: dataPrecioEquilibrio,
                     borderColor: '#9ca3af',
                     borderDash: [5, 5],
@@ -198,7 +203,7 @@ export function actualizarGraficaExcedentes(costoBase, precioBotella, precioMaxi
             plugins: {
                 title: {
                     display: true,
-                    text: `Excedente Productor (Marca): $${Math.round(exProductor).toLocaleString('es-MX')} | Excedente Consumidor: $${Math.round(exConsumidor).toLocaleString('es-MX')}`,
+                    text: `${labelExcedenteProd}: $${Math.round(exProductor).toLocaleString('es-MX')} | Excedente Consumidor: $${Math.round(exConsumidor).toLocaleString('es-MX')}`,
                     color: '#e5e7eb',
                     font: { size: 14 }
                 },
@@ -213,13 +218,13 @@ export function actualizarGraficaExcedentes(costoBase, precioBotella, precioMaxi
                 x: {
                     type: 'linear',
                     min: 0, max: botellasEquilibrio,
-                    title: { display: true, text: 'Cantidad de Botellas Vendidas (750ml)', color: '#9ca3af' },
+                    title: { display: true, text: labelX, color: '#9ca3af' },
                     grid: { color: 'rgba(255, 255, 255, 0.05)' },
                     ticks: { color: '#9ca3af' }
                 },
                 y: {
                     min: 0, max: precioMaximo + 100,
-                    title: { display: true, text: 'Precio por Botella ($ MXN)', color: '#9ca3af' },
+                    title: { display: true, text: labelY, color: '#9ca3af' },
                     grid: { color: 'rgba(255, 255, 255, 0.05)' },
                     ticks: { color: '#9ca3af' }
                 }

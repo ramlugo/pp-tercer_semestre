@@ -60,17 +60,21 @@ export function generarProyeccionesAgricolas(proyecto) {
     let kgTotales = 0;
 
     const datosVariedad = DATOS_AGAVE[proyecto.variedad];
+    const hectareasRequeridas = proyecto.plantasTotales / 1000;
 
     for (let i = 1; i <= proyecto.aniosProyecto; i++) {
         let ingresosAnio = 0;
         let costosAnio = 0;
         if (AppState.escenarioActual === 'maguey') {
-            costosAnio += (COSTOS_FIJOS.mantenimientoAnual + COSTOS_FIJOS.salariosAnuales) * (inventarioVivo / 1000);
+            costosAnio += (COSTOS_FIJOS.mantenimientoAnual + COSTOS_FIJOS.salariosAnuales) * hectareasRequeridas;
             if (proyecto.cultivosIntercalados) {
                 costosAnio *= 0.70; 
+                if (i <= 7) {
+                    ingresosAnio += FINANZAS_EXTERNAS.ingresoIntercaladoAnualPorHectarea * hectareasRequeridas;
+                }
             }
         } else {
-            costosAnio += PARAMETROS_MERCADO.costosMezcal.gastosAdministrativosAnuales * (inventarioVivo / 1000);
+            costosAnio += PARAMETROS_MERCADO.costosMezcal.gastosAdministrativosAnuales * hectareasRequeridas;
         }
 
         let loteCosechado = proyecto.inventario.find(l => l.aniosFaltantes === i);
@@ -86,14 +90,14 @@ export function generarProyeccionesAgricolas(proyecto) {
             kgTotales += kgCosechadosAnio;
             
             if (AppState.escenarioActual === 'maguey') {
-                ingresosAnio = kgCosechadosAnio * AppState.precioAgaveKg;
+                ingresosAnio += kgCosechadosAnio * AppState.precioAgaveKg;
                 ingresosAnio += plantas * MERCADO_HIJUELOS.cantidadGeneradaPorPlanta * MERCADO_HIJUELOS.precioUnitario;
             } else {
                 let litrosProducidos = kgCosechadosAnio / PARAMETROS_MERCADO.costosMezcal.eficienciaConversion;
                 litrosTotales += litrosProducidos;
                 
                 let botellas = litrosProducidos * 1.3333333333333333;
-                ingresosAnio = botellas * AppState.precioBotellaMezcal;
+                ingresosAnio += botellas * AppState.precioBotellaMezcal;
                 
                 let compraMateriaPrima = kgCosechadosAnio * AppState.precioAgaveKg;
                 let costoMaquila = litrosProducidos * PARAMETROS_MERCADO.costosMezcal.maquilaPorLitro;
